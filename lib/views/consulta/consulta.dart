@@ -13,11 +13,11 @@ class Consulta extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Visitas realizadas'),
+        title: Text('Capturas realizadas'),
         actions: [
           TextButton(
             onPressed: () {
-              Get.toNamed(Routes.CAPTURA, arguments: 0);
+              Get.toNamed(Routes.ATIVIDADE, arguments: 0);
             },
             child: Icon(
               Icons.add,
@@ -26,18 +26,36 @@ class Consulta extends StatelessWidget {
           )
         ],
       ),
-      body: Container(
-        child: Obx(
-          () {
+      body: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Padding(
+          padding: EdgeInsets.all(20),
+            child: Text('Capturas Registradas',
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold
+              ),
+            )
+        ),
+        Container(
+          height: 2,
+          child: Divider(
+            color: Colors.blueGrey,
+          ),
+        ),
+        Container(
+          child: Obx(() {
             return ctrl.loaded.value
                 ? ListaVisitas(ctrl.itens)
                 : Text(
                     'Carregando...',
                     style: TextStyle(color: COR_SECUNDARIA),
                   );
-          },
+            },
+          ),
         ),
-      ),
+      ]),
     );
   }
 }
@@ -47,10 +65,13 @@ class ListaVisitas extends StatelessWidget {
   ListaVisitas(this.lista);
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ListView.builder(
-        itemCount: lista.length,
-        itemBuilder: (ctx, i) => ConsultaMaster(lista[i]),
+    return Expanded(
+      child: Container(
+
+        child: ListView.builder(
+          itemCount: lista.length,
+          itemBuilder: (ctx, i) => ConsultaMaster(lista[i]),
+        ),
       ),
     );
   }

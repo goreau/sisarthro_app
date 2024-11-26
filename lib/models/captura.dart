@@ -2,7 +2,7 @@ class Captura {
 
   late int idCaptura;
   late String dtCaptura;
-  late int execucao;
+  late int execucao = 1;
   late String exec_3;
   late int zona;
   late int idMunicipio;
@@ -60,10 +60,12 @@ class LstMaster {
 
   factory LstMaster.fromJson(dynamic json) {
     //var prop = jsonDecode(json['dados_proposta']);
+    var dt = json['data'].toString();
+    var dtcapt = dt.split('-').reversed.join('/');
     return LstMaster(
       int.parse(json['id_captura'].toString()),
-      json['municipio'].toString(),
-      json['data'].toString(),
+      json['municipio'].toString().trim(),
+      dtcapt,
       json['agravo'],
       json['atividade'],
       int.parse(json['status'].toString()),
@@ -73,20 +75,21 @@ class LstMaster {
 
 class LstDetail {
   int id;
-  int status;
-  String umidade_final;
-  String endereco;
+  String codend;
+  String metodo;
+  String ambiente;
+  String amostra;
 
-  LstDetail(this.id, this.status, this.umidade_final, this.endereco);
+  LstDetail(this.id, this.codend, this.metodo, this.ambiente, this.amostra);
 
   factory LstDetail.fromJson(dynamic json) {
     //var prop = jsonDecode(json['dados_proposta']);
     return LstDetail(
-        int.parse(json['id_visita'].toString()),
-        int.parse(json['status'].toString()),
-        json['umidade_final'].toString(),
-        json['endereco'].toString().trim() +
-            ', ' +
-            json['numero'].toString().trim());
+        int.parse(json['id_captura_det'].toString()),
+        json['codend'].toString(),
+        json['metodo'].toString(),
+        json['ambiente'].toString(),
+        json['amostra'].toString()
+    );
   }
 }

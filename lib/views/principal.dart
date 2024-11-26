@@ -9,8 +9,6 @@ class Principal extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('SisArthro App',style: TextStyle(fontSize: 20, fontFamily: 'RobotoCondensed', fontWeight: FontWeight.bold, color: COR_BRANCO)),
-        backgroundColor: COR_AZUL_MARINHO,
-        iconTheme: IconThemeData(color: COR_BRANCO),
       ),
       body: new Container(      
         child: new Image.asset('assets/images/casa.png'),
@@ -55,7 +53,7 @@ class Principal extends StatelessWidget {
                 height: 40,
                 child: ListTile(
                   title: Text(
-                    'Captura',
+                    'Atividade',
                     style: TextStyle(fontSize: 14),
                   ),
                 ),
@@ -65,7 +63,7 @@ class Principal extends StatelessWidget {
                 child: ListTile(
                   leading: Icon(Icons.bug_report_outlined),
                   title: Text(
-                    'Nova',
+                    'Captura',
                     style: TextStyle(fontSize: 12),
                   ),
                   onTap: () {

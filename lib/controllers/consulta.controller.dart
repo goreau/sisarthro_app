@@ -40,11 +40,10 @@ class ConsultaController extends GetxController {
     return dt;
   }
 
-  excluiVisita(vis) {
+  excluiVisita(int id, String tab) async {
     final db = DbHelper.instance;
-    db.delete(vis, 'visita');
-    
     Get.back(closeOverlays: true);
+    int res = await db.delete(id, tab);
     Get.toNamed('/consulta');
   }
 

@@ -12,14 +12,22 @@ class ManutencaoView extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manutenção'),
+        title: Text('MANUTENÇÃO'),
       ),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(10, 20, 10, 0),
         child: Column(
           children: [
-            Text('Excluir Registros'),
-            Row(
+            Text('Excluir Registros',style: TextStyle(fontSize: 20)),
+            Container(
+              height: 2,
+              child: Divider(
+                color: Colors.blueGrey,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(10, 30, 10, 50),
+              child: Row(
               children: [
                 Obx(
                   () => Switch(
@@ -68,9 +76,10 @@ class ManutencaoView extends StatelessWidget {
                 Text('Todos os registros.')
               ],
             ),
+            ),
             SizedBox(
               width: double.infinity,
-              height: 40,
+              height: 50,
               child: ElevatedButton(
                 onPressed: () {
                   showDialog(
@@ -107,8 +116,13 @@ class ManutencaoView extends StatelessWidget {
                     ),
                   );
                 },
-                child: Text('Limpar'),
-                style: ElevatedButton.styleFrom(primary: COR_AZUL),
+                child: Text('EXCLUIR REGISTROS',style: TextStyle(color: COR_BRANCO)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: COR_AZUL_MARINHO,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                )
               ),
             ),
           ],

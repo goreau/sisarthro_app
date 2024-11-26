@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import 'db_helper.dart';
@@ -27,28 +29,61 @@ class Auxiliar {
     return list;
   }
 
+  static Future<int> getProp(int mun) async {
+    final db = DbHelper.instance;
+
+    var prop = await db.getProp(mun);
+
+    return prop;
+  }
+
   static Future<String> checkEnvio() async {
     final db = DbHelper.instance;
 
-    var ret = await db.qryCountEnvio();
+    var (ret, retd) = await db.qryCountEnvio();
 
-    String list = '=> ' +
-        (ret > 0
-            ? ret.toString() + ' registros a sincronizar'
-            : 'Nenhum registro  sincronizar');
+    String list = '';
+    if (ret > 0){
+      list = 'Capturas: ' + ret.toString() + ' registros\n\n' +
+        '       => ' + retd.toString() + 'coletas.';
+    } else {
+      list = 'Nenhum registro  sincronizar';
+    }
+
     return list;
   }
 
-  static Future<List<Map<dynamic, dynamic>>> loadEnvio() async {
+  static Future<List<dynamic>> loadEnvio() async {
     final db = DbHelper.instance;
 
     var ret = await db.qryEnvio();
-    /* var dados = [];
-    ret.forEach((row) => {dados.add(row)});
-    var send = jsonEncode(dados);*/
+    var dados = [];
+    var details = [];
 
-    return ret;
-    //send;
+
+    for (var row in ret){
+      var map = {};
+      row.forEach((key, value) {
+        if (key == 'id_captura'){
+          key = 'id_master';
+        }
+        map[key] = value;
+      });
+      details = await db.qryEnvioDet(row['id_captura']);
+      map['detail'] = details;
+      map['quadrante'] = map['quadrante'] == '' ? 0 : map['quadrante'];
+      dados.add(map);
+    }
+    /*Future.forEach(ret, (row) async {
+      var map = {};
+      row.forEach((key, value) => map[key] = value);
+      details = await db.qryEnvioDet(row['id_captura']);
+      map['detail'] = details;
+      dados.add(map);
+    });*/
+    var send = jsonEncode(dados);
+
+    return dados;
   }
 
   static Future<int> changeStatus(reg) async {
@@ -56,7 +91,7 @@ class Auxiliar {
     var cont = 0;
 
     //regs.forEach((element) {
-    db.updateStatus(reg).then((value) => cont += value);
+     await db.updateStatus(reg).then((value) => cont += value);
     // });
 
     return cont;

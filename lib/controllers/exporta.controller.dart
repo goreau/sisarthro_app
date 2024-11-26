@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sisarthro_app/util/auxiliar.dart';
@@ -18,10 +20,14 @@ class ExportaController extends GetxController {
       Auxiliar.loadEnvio().then((value) async {
         dados = value;
         retorno.value = '';
-        dados.forEach((row) async {
-          await _com.postVisitas(context, row);
-          resultado.value = ' Registros enviados.';
-        });
+        var send = jsonEncode(dados);
+        var ret = await _com.postVisitas(context, send);
+        var cont = 0;
+        for (var element in ret){
+            cont += await Auxiliar.changeStatus(element);
+        }
+        resultado.value = cont.toString() + ' Registros enviados.';
+
       });
     } catch (ex) {
       retorno.value = 'Erro enviando registros:\r\n' + ex.toString();

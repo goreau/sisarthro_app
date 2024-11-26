@@ -6,14 +6,26 @@ import 'package:sisarthro_app/controllers/captura.controller.dart';
 class Captura extends StatelessWidget {
   final CapturaController ctrl = Get.find();
 
+  var masterId = 0;
+  var id = 0;
+  //final masterId = Get.parameters['master'];
+ // final id = Get.parameters['detail'];
+
   @override
   Widget build(BuildContext context) {
     ctrl.getPosition();
     ctrl.loadAuxiliares();
+    final Map<String, dynamic> args = Get.arguments;
+    masterId = args["master"];
+    id = args["detail"];
+
+    if (id != null && id > 0) {
+      ctrl.initDetail(id);
+    }
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Condição do Imóvel'),
+        title: Text('CAPTURAS'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -79,31 +91,18 @@ class Captura extends StatelessWidget {
               ],
             ),
             ListTile(
-              leading: const Icon(Icons.map_sharp),
-              title: Text(
-                'CodEnd:',
+              leading: const Icon(Icons.accessibility),
+              title: TextFormField(
                 style: new TextStyle(
-                  fontSize: 13,
+                  fontSize: 12,
                 ),
-                textAlign: TextAlign.start,
-              ),
-              subtitle: Obx(
-                    () => ((ctrl.loadingCodend.value)
-                    ? Center(child: CircularProgressIndicator())
-                    : DropdownButtonFormField<String>(
-                  hint: Text(''),
-                  value: ctrl.idCodend.value,
-                  icon: Icon(Icons.arrow_drop_down),
-                  iconSize: 24,
-                  isExpanded: true,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                  ),
-                  items: ctrl.lstCodend,
-                  onChanged: (value) {
-                    ctrl.updateCodend(value);
-                  },
-                )),
+                controller: ctrl.codendController,
+                decoration: InputDecoration(labelText: 'CodEnd/PC'),
+                validator: (value) {
+                  ctrl.capturaDet.value.codend = value!;
+                  return null;
+                },
+                onSaved: null,
               ),
             ),
             ListTile(
@@ -312,7 +311,6 @@ class Captura extends StatelessWidget {
                       style: new TextStyle(
                         fontSize: 12,
                       ),
-                      readOnly: true,
                       controller: ctrl.tempIniController,
                       decoration: InputDecoration(labelText: 'Inicial'),
                       validator: (value) {
@@ -329,7 +327,6 @@ class Captura extends StatelessWidget {
                       style: new TextStyle(
                         fontSize: 12,
                       ),
-                      readOnly: true,
                       controller: ctrl.tempFimController,
                       decoration: InputDecoration(labelText: 'Final'),
                       validator: (value) {
@@ -362,7 +359,6 @@ class Captura extends StatelessWidget {
                       style: new TextStyle(
                         fontSize: 12,
                       ),
-                      readOnly: true,
                       controller: ctrl.umidIniController,
                       decoration: InputDecoration(labelText: 'Inicial'),
                       validator: (value) {
@@ -380,7 +376,6 @@ class Captura extends StatelessWidget {
                       style: new TextStyle(
                         fontSize: 12,
                       ),
-                      readOnly: true,
                       controller: ctrl.umidFimController,
                       decoration: InputDecoration(labelText: 'Final'),
                       validator: (value) {
@@ -433,18 +428,19 @@ class Captura extends StatelessWidget {
               padding: EdgeInsets.all(20),
               child: SizedBox(
                 width: double.infinity,
-                height: 60,
+                height: 50,
                 child: ElevatedButton(
                     onPressed: () {
                       ctrl.doPost(context);
                     },
-                    child: Text('Salvar',style: TextStyle(color: COR_BRANCO),),
+                    child: Text('SALVAR',style: TextStyle(color: COR_BRANCO),),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: COR_AZUL_MARINHO,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(5),
                       ),
-                    )),
+                    ),
+                ),
               ),
             ),
             ListTile(

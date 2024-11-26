@@ -12,10 +12,25 @@ class ComImporta extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Importar Cadastro'),
+        title: Text('IMPORTAÇÃO'),
       ),
       body: Column(
         children: [
+          Padding(
+              padding: EdgeInsets.all(20),
+              child: Text('Tipo de Dados',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold
+                ),
+              )
+          ),
+          Container(
+            height: 2,
+            child: Divider(
+              color: Colors.blueGrey,
+            ),
+          ),
           Row(
             children: [
               Expanded(child: ListTile(
@@ -38,7 +53,7 @@ class ComImporta extends StatelessWidget {
                     },
                   ))
               ),),
-            ]
+            ],
           ),
           Form(
               child: Obx(() =>
@@ -100,6 +115,12 @@ class ComImporta extends StatelessWidget {
                 ),
               ),
           ),
+          Container(
+            height: 5,
+            child: Divider(
+              color: Colors.blue,
+            ),
+          ),
           SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.all(20),
@@ -109,13 +130,18 @@ class ComImporta extends StatelessWidget {
                         padding: EdgeInsets.all(20),
                         child: SizedBox(
                           width: double.infinity,
-                          height: 40,
+                          height: 50,
                           child: ElevatedButton(
                             onPressed: () {
                               ctrl.loadCadastro(context, id_mun);
                             },
-                            child: Text('Carregar'),
-                            style: ElevatedButton.styleFrom(primary: COR_AZUL),
+                            child: Text('SINCRONIZAR DADOS', style: TextStyle(color: COR_BRANCO),),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: COR_AZUL_MARINHO,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                            ),
                           ),
                         ),
                       )

@@ -25,7 +25,8 @@ class ConsultaTile extends StatelessWidget {
             backgroundColor: Colors.green,
             icon: Icons.edit,
             onPressed: (context) {
-              Get.toNamed(Routes.ATIVIDADE, arguments: prop.id);
+              var data = prop.id;
+              Get.toNamed(Routes.CAPTURA, arguments: {'detail': data, 'master': 0});
             },
           ),
         ],
@@ -39,60 +40,99 @@ class ConsultaTile extends StatelessWidget {
             backgroundColor: Colors.red,
             icon: Icons.delete,
             onPressed: (context) {
-              ctrl.excluiVisita(prop.id);
+              ctrl.excluiVisita(prop.id, 'captura_det');
             },
           ),
         ],
       ),
-      child: ListTile(
-        leading: trocaIcone(prop.status),
-        title: RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 14,
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          Container(
+            height: 2,
+            child: Divider(
               color: Colors.blueGrey,
-              fontWeight: FontWeight.bold,
             ),
-            children: [
-              TextSpan(
-                text: 'Ordem: ',
-              ),
-              TextSpan(
-                  text: '${prop.umidade_final}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  )),
-            ],
           ),
-        ),
-        subtitle: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            RichText(
-              text: TextSpan(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Padding(
+                  padding: EdgeInsets.all(10),
+                child:
+                  RichText(
+                    text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.blueGrey,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'CodEnd/PC: ',
+                      ),
+                      TextSpan(
+                        text: '${prop.codend}',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ]),
+                  ),
+              ),
+              RichText(
+            text: TextSpan(
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: Colors.blueGrey,
-                  fontWeight: FontWeight.bold,
                 ),
                 children: [
                   TextSpan(
-                    text: 'Data: ',
+                    text: 'Método: ',
                   ),
                   TextSpan(
-                      text: '${prop.endereco}',
+                      text: '${prop.metodo}',
                       style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade800,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        color: Colors.blueGrey,
                       )),
-                ],
+                ]),
+          ),
+          ]),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children:[
+              RichText(
+                text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.blueGrey,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'Ambiente: ',
+                      ),
+                      TextSpan(
+                          text: '${prop.ambiente}',
+                      ),
+                    ]),
               ),
-            ),
-          ],
-        ),
+              RichText(
+                text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.blueGrey,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: 'Amostra: ',
+                      ),
+                      TextSpan(
+                        text: '${prop.amostra}',
+                      ),
+                    ]),
+              ),
+    ]),
+        ]
       ),
     );
   }

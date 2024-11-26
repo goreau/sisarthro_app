@@ -15,68 +15,38 @@ class ComunicaService {
     "quarteirao",
   ];
 
-  Future<List<dynamic>> postOldVisitas(
+  Future<List<dynamic>> postVisitas(
       BuildContext context, String dados) async {
     String _url = '';
 
     //print(dados);
-    _url = 'http://200.144.1.23/icm_api/exporta.php';
-    var values = {'dados': dados};
+    _url = 'http://10.8.150.23:4000/mobExporta'; //'''http://vigentapi.saude.sp.gov.br/mobExporta';
+    var values = {'data': dados};
     final response = await http.post(Uri.parse(_url), body: values);
     var data = [];
     if (response.statusCode == 200) {
-      data = jsonDecode(response.body);
+      var res = jsonDecode(response.body);
+      if (res['status'] == 'ok'){
+        data = res['result'];
+      }
     } else {
       throw Exception('Falha ao carregar cadastro');
     }
     return data;
   }
 
-  Future<int> postVisitasOrig(
-      BuildContext context, List<Map<dynamic, dynamic>> dados) async {
-    final db = DbHelper.instance;
-    String _url = '';
-    //var rows = jsonDecode(dados);
-    String file;
-    _url = 'http://200.144.1.23/icm_api/exporta.php';
-    var cont = 0;
-
-    dados.forEach((row) async {
-      file = row['foto'];
-
-      String _row = jsonEncode(row);
-
-      var request = http.MultipartRequest('POST', Uri.parse(_url));
-      request.files.add(await http.MultipartFile.fromPath('file', file));
-      request.fields['dados'] = _row;
-      var response = await request.send();
-      if (response.statusCode == 200) {
-        var responseString = await response.stream.bytesToString();
-        var data = jsonDecode(responseString);
-        db.updateStatus(data[0]).then((value) => cont += value);
-        return Future.value(cont);
-      } else {
-        throw Exception('Falha ao carregar cadastro');
-      }
-    });
-    return Future.value(cont);
-  }
-
-  Future<int> postVisitas(
+  Future<int> postOtherVisitas(
       BuildContext context, Map<dynamic, dynamic> row) async {
     final db = DbHelper.instance;
     String _url = '';
-    //var rows = jsonDecode(dados);
-    String file;
-    _url = 'http://vigentapi.saude.sp.gov.br/exporta.php';
+
+    _url = 'http://vigentapi.saude.sp.gov.br/mobExporta';
     var cont = 0;
 
-    file = row['foto'];
 
     String _row = jsonEncode(row);
 
     var request = http.MultipartRequest('POST', Uri.parse(_url));
-    request.files.add(await http.MultipartFile.fromPath('file', file));
     request.fields['dados'] = _row;
     var response = await request.send();
     if (response.statusCode == 200) {

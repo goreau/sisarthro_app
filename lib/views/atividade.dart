@@ -12,7 +12,7 @@ class Atividade extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (id != null) {
-      ctrl.initObj(id);
+      ctrl.initMaster(id);
     }
     ctrl.loadMun();
     ctrl.loadAtiv();
@@ -21,7 +21,7 @@ class Atividade extends StatelessWidget {
 
     return Scaffold(
       appBar: new AppBar(
-        title: const Text('Registrar Captura'),
+        title: const Text('CAPTURA'),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -57,8 +57,7 @@ class Atividade extends StatelessWidget {
                           lastDate: DateTime(ano + 1),
                         );
                         if (date != null) {
-                          await ctrl
-                              .getCurrentDate(date.toString().substring(0, 10));
+                          await ctrl.getCurrentDate(date.toString().substring(0, 10));
                           date.toString().substring(0, 10);
                         }
                       },
@@ -230,6 +229,34 @@ class Atividade extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.map_sharp),
                   title: Text(
+                    'Zona:',
+                    style: new TextStyle(
+                      fontSize: 13,
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  subtitle: Obx(
+                        () => ((ctrl.loadingZona.value)
+                        ? Center(child: CircularProgressIndicator())
+                        : DropdownButtonFormField<String>(
+                      hint: Text(''),
+                      value: ctrl.idZona.value,
+                      icon: Icon(Icons.arrow_drop_down),
+                      iconSize: 24,
+                      isExpanded: true,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                      ),
+                      items: ctrl.lstZona,
+                      onChanged: (value) {
+                        ctrl.updateZona(value);
+                      },
+                    )),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.map_sharp),
+                  title: Text(
                     'Agravo:',
                     style: new TextStyle(
                       fontSize: 13,
@@ -295,16 +322,16 @@ class Atividade extends StatelessWidget {
                   padding: EdgeInsets.all(20),
                   child: SizedBox(
                     width: double.infinity,
-                    height: 60,
+                    height: 50,
                     child: ElevatedButton(
                         onPressed: () {
                           ctrl.doRegister();
                         },
-                        child: Text('Prosseguir',style: TextStyle(color: COR_BRANCO),),
+                        child: Text('PROSSEGUIR',style: TextStyle(color: COR_BRANCO),),
                         style: ElevatedButton.styleFrom(
                             backgroundColor: COR_AZUL_MARINHO,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(5),
                               ),
                           )),
                   ),

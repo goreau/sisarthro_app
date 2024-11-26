@@ -11,10 +11,25 @@ class ComExporta extends StatelessWidget {
     ctrl.verifEnvio(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exportar Produção'),
+        title: Text('EXPORTAÇÃO'),
       ),
       body: Column(
         children: [
+          Padding(
+            padding: EdgeInsets.all(20),
+            child: Text('Registros a exportar',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold
+              ),
+            )
+          ),
+          Container(
+            height: 2,
+            child: Divider(
+              color: Colors.blueGrey,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(15, 30, 5, 10),
             child: Obx(() {
@@ -27,18 +42,29 @@ class ComExporta extends StatelessWidget {
                     padding: EdgeInsets.all(20),
                     child: SizedBox(
                       width: double.infinity,
-                      height: 40,
+                      height: 50,
                       child: ElevatedButton(
                         onPressed: () {
                           ctrl.postVisitas(context);
                         },
-                        child: Text('Enviar os Registros'),
-                        style: ElevatedButton.styleFrom(primary: COR_AZUL),
+                        child: Text('SINCRONIZAR DADOS', style: TextStyle(color: COR_BRANCO),),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: COR_AZUL_MARINHO,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
                       ),
                     ),
                   )
                 : Text('Aguarde...');
           }),
+          Container(
+            height: 4,
+            child: Divider(
+              color: Colors.blue,
+            ),
+          ),
           Obx(() {
             return ctrl.loading.value
                 ? Expanded(

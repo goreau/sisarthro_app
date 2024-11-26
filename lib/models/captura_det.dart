@@ -80,21 +80,3 @@ class Captura_det {
     'longitude': longitude,
   };
 }
-
-class LstDetail {
-  int id;
-  int status;
-  String municipio;
-  String data;
-
-  LstDetail(this.id, this.status, this.municipio, this.data);
-
-  factory LstDetail.fromJson(dynamic json) {
-    return LstDetail(
-        int.parse(json['id_captura_det'].toString()),
-        int.parse(json['status'].toString()),
-        json['municipio'].toString(),
-        json['data'].toString().trim()
-    );
-  }
-}

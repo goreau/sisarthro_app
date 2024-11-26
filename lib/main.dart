@@ -58,6 +58,14 @@ ThemeData buildThemeData() {
   final baseTheme = ThemeData.light();
   return baseTheme.copyWith(
     primaryColor: COR_BRANCO,
+    appBarTheme: AppBarTheme(
+      backgroundColor: COR_AZUL_MARINHO,
+      titleTextStyle: TextStyle(
+        color: COR_BRANCO,
+        fontSize: 20
+      ),
+      iconTheme: IconThemeData(color: COR_BRANCO),
+    ),
     primaryTextTheme: TextTheme(
         headline6: TextStyle(
           color: COR_BRANCO,
