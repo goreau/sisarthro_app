@@ -88,6 +88,33 @@ class Principal extends StatelessWidget {
               Container(
                 height: 40,
                 child: ListTile(
+                  leading: Icon(Icons.pets),
+                  title: Text(
+                    'Cães e Gatos',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    //Navigator.of(context).pushNamed(Routes.ATIVIDADE);
+                    Get.toNamed(Routes.CANINO);
+                  },
+                ),
+              ),
+              Container(
+                height: 40,
+                child: ListTile(
+                  leading: Icon(Icons.search),
+                  title: Text(
+                    'Consultar Cães e Gatos',
+                    style: TextStyle(fontSize: 12),
+                  ),
+                  onTap: () {
+                    Get.toNamed(Routes.CONS_CANINO);
+                  },
+                ),
+              ),
+              Container(
+                height: 40,
+                child: ListTile(
                   leading: Icon(Icons.build_outlined),
                   title: Text(
                     'Manutenção',

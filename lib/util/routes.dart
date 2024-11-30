@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:sisarthro_app/models/canino_det.dart';
 import 'package:sisarthro_app/util/sample.bind.dart';
 import 'package:sisarthro_app/views/atividade.dart';
 import 'package:sisarthro_app/views/com_envio.dart';
@@ -9,6 +10,10 @@ import 'package:sisarthro_app/views/principal.dart';
 import 'package:sisarthro_app/views/splash.dart';
 import 'package:sisarthro_app/views/captura.dart';
 
+import '../views/canino.dart';
+import '../views/canino_det.dart';
+import 'package:sisarthro_app/views/cons_canino/cons_c.dart';
+
 class Routes {
   static const SPLASH = '/';
   static const HOME = '/home';
@@ -17,6 +22,9 @@ class Routes {
   static const ATIVIDADE = '/atividade';
   static const CAPTURA = '/captura';
   static const CONSULTA = '/consulta';
+  static const CANINO = '/canino';
+  static const CANINODET = '/canino_det';
+  static const CONS_CANINO = '/cons_canino';
   static const LIMPEZA = '/limpeza';
 }
 
@@ -28,7 +36,10 @@ List<GetPage<dynamic>> rotas = [
   GetPage(
       name: Routes.ATIVIDADE, page: () => Atividade(), binding: SampleBind()),
   GetPage(name: Routes.CAPTURA, page: () => Captura(), binding: SampleBind()),
-   GetPage(name: Routes.CONSULTA, page: () => Consulta()),
+  GetPage(name: Routes.CONSULTA, page: () => Consulta()),
+  GetPage(name: Routes.CANINO, page: () => Canino(), binding: SampleBind()),
+  GetPage(name: Routes.CANINODET, page: () => CaninoDet(), binding: SampleBind()),
+  GetPage(name: Routes.CONS_CANINO, page: () => Cons_Canino()),
   GetPage(
       name: Routes.LIMPEZA,
       page: () => ManutencaoView(),

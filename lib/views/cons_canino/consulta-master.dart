@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 import 'package:sisarthro_app/colors-constants.dart';
-import 'package:sisarthro_app/controllers/consulta.controller.dart';
-import 'package:sisarthro_app/models/captura.dart';
+import 'package:sisarthro_app/controllers/cons_canino.controller.dart';
+import 'package:sisarthro_app/models/canino.dart';
 
 import '../../util/routes.dart';
 
 class ConsultaMaster extends StatelessWidget {
-  final LstMaster prop;
-  final ConsultaController crtl = Get.put(ConsultaController());
+  final LstCanMaster prop;
+  final ConsCaninoController crtl = Get.put(ConsCaninoController());
 
   ConsultaMaster(this.prop);
 
@@ -26,7 +26,7 @@ class ConsultaMaster extends StatelessWidget {
                 backgroundColor: Colors.green,
                 icon: Icons.edit,
                 onPressed: (context) {
-                  Get.toNamed(Routes.ATIVIDADE, arguments: prop.idCaptura);
+                  Get.toNamed(Routes.CANINO, arguments: prop.idCanino);
                 },
               ),
             ],
@@ -40,7 +40,7 @@ class ConsultaMaster extends StatelessWidget {
                 backgroundColor: Colors.red,
                 icon: Icons.delete,
                 onPressed: (context) {
-                  crtl.excluiVisita(prop.idCaptura, 'captura');
+                  crtl.excluiVisita(prop.idCanino, 'canino');
                 },
               ),
             ],
@@ -115,10 +115,10 @@ class ConsultaMaster extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: 'Agravo: ',
+                              text: 'Quarteirão: ',
                             ),
                             TextSpan(
-                              text: '${prop.agravo}',
+                              text: '${prop.quadra}',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.blueGrey.shade800,
@@ -137,10 +137,10 @@ class ConsultaMaster extends StatelessWidget {
                           ),
                           children: [
                             TextSpan(
-                              text: 'Atividade: ',
+                              text: 'Codend: ',
                             ),
                             TextSpan(
-                                text: '${prop.atividade}',
+                                text: '${prop.codend}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: Colors.blueGrey.shade800,
@@ -152,7 +152,7 @@ class ConsultaMaster extends StatelessWidget {
                     ]),
               ],
             ),
-            children: crtl.getDetail(prop.idCaptura),
+            children: crtl.getDetail(prop.idCanino),
           )),
       Container(
         height: 2,

@@ -2,23 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:sisarthro_app/models/captura.dart';
+import 'package:sisarthro_app/models/canino.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DbHelper {
   static final _databaseName = "arthro2.db";
-  static final _databaseVersion = 4;
+  static final _databaseVersion = 7;
 
   Map registros = Map<String, dynamic>();
-
-  // id_captura, dt_captura, execucao, exec_3, zona, id_municipio, cod_loc, quadrante, agravo, atividade, equipe, obs, created_at, updated_at, id_usuario, codigo
-  //
-  // id_captura_det, id_captura, area, quadra, codend, coordenadas, metodo, ambiente, local_captura, num_arm, altura, hora_inicio, hora_final, temp_inicio, temp_final, umidade_inicio, umidade_final, amostra, quant_potes, fant_area, fant_quart
-  //
-  //
-
-  //final dbHelper = DatabaseHelper.instance;
 
   static final sqlCreate = [
     "CREATE TABLE municipio(id_municipio INTEGER, nome TEXT, codigo TEXT, id_prop INTEGER)",
@@ -27,11 +20,22 @@ class DbHelper {
     "CREATE TABLE area(id_area INTEGER, id_municipio INTEGER, codigo TEXT)",
     "CREATE TABLE quarteirao(id_quarteirao INTEGER, id_area INTEGER, numero TEXT)",
     "CREATE TABLE auxiliares(id_auxiliares INTEGER, tipo INTEGER, codigo TEXT, descricao TEXT)",
+    "CREATE TABLE raca(id_raca INTEGER, tipo INTEGER, codigo TEXT, nome TEXT)",
     "CREATE TABLE captura(id_captura INTEGER PRIMARY KEY, dt_captura TEXT, execucao INTEGER, exec_3 TEXT, zona INTEGER, id_municipio INTEGER, cod_loc INTEGER, quadrante INTEGER, agravo INTEGER, atividade INTEGER, equipe TEXT, obs TEXT, id_usuario INTEGER, status INTEGER)",
-    "CREATE TABLE captura_det(id_captura_det INTEGER PRIMARY KEY, id_captura INTEGER, area INTEGER, quadra INTEGER, codend INTEGER, metodo INTEGER, ambiente INTEGER, local_captura INTEGER, num_arm TEXT, altura REAL, hora_inicio TEXT, hora_final TEXT, temp_inicio REAL, temp_final REAL, " +
+    "CREATE TABLE captura_det(id_captura_det INTEGER PRIMARY KEY, id_captura INTEGER, area INTEGER, quadra INTEGER, codend INTEGER, tp_codend INTEGER, metodo INTEGER, ambiente INTEGER, local_captura INTEGER, num_arm TEXT, altura REAL, hora_inicio TEXT, hora_final TEXT, temp_inicio REAL, temp_final REAL, " +
         "umidade_inicio REAL, umidade_final REAL, amostra TEXT, quant_potes INTEGER, latitude REAL, longitude REAL, fant_area TEXT, fant_quart TEXT, " +
         "FOREIGN KEY (id_captura) REFERENCES captura(id_captura) ON DELETE CASCADE)",
+    "CREATE TABLE canino(id_canino INTEGER PRIMARY KEY, id_municipio INTEGER, id_quarteirao INTEGER, fant_quart TEXT, id_codend INTEGER, proprietario TEXT, telefone TEXT, id_area INTEGER, fant_area TEXT, dt_canino TEXT, responsavel TEXT, id_situacao INTEGER, latitude REAL, longitude REAL, id_usuario INTEGER, status INTEGER)",
+    "CREATE TABLE canino_det(id_canino_det INTEGER PRIMARY KEY, id_canino INTEGER, nome TEXT, id_especie INTEGER, ra TEXT, nascimento TEXT, id_sexo INTEGER, id_raca INTEGER, id_cor INTEGER, peso REAL, "+
+        "FOREIGN KEY (id_canino) REFERENCES canino(id_canino) ON DELETE CASCADE)",
   ];
+
+  /*
+
+
+
+
+   */
   static final tabelas = {
     "municipio",
     "localidade",
@@ -39,8 +43,11 @@ class DbHelper {
     "area",
     "quarteirao",
     "auxiliares",
+    "raca",
     "captura",
     "captura_det",
+    "canino",
+    "canino_det",
   };
 
   // torna esta classe singleton
@@ -126,6 +133,20 @@ class DbHelper {
     return resultset[0];
   }
 
+  Future<Map<String, dynamic>> caninoMaster(int id) async {
+    Database? db = await instance.database;
+    var resultset =
+    await db!.query('canino', where: 'id_canino = ?', whereArgs: [id]);
+    return resultset[0];
+  }
+
+  Future<Map<String, dynamic>> caninoDetail(int id) async {
+    Database? db = await instance.database;
+    var resultset =
+    await db!.query('canino_det', where: 'id_canino_det = ?', whereArgs: [id]);
+    return resultset[0];
+  }
+
   Future<int?> queryRowCount(String table) async {
     Database? db = await instance.database;
     return Sqflite.firstIntValue(
@@ -143,9 +164,12 @@ class DbHelper {
     String idField = 'id_$table';
     if (table == 'captura'){
       int res = await db!.delete('captura_det', where: 'id_captura = ?', whereArgs: [id]);
+    } else if (table == 'canino'){
+      int res = await db!.delete('canino_det', where: 'id_canino = ?', whereArgs: [id]);
     }
     return await db!.delete(table, where: '$idField = ?', whereArgs: [id]);
   }
+
 
   Future<int> limpa(String table) async {
     Database? db = await instance.database;
@@ -169,6 +193,23 @@ class DbHelper {
       }
   }
 
+  Future<int> limpaCanino(int tipo) async {
+    Database? db = await instance.database;
+
+    if (tipo == 1) {
+      var res = await db!.delete('canino_det');
+      return await db!.delete('canino');
+    } else {
+      var resultset =
+      await db!.query('canino', where: 'status = ?', whereArgs: [1]);
+
+      for (var element in resultset) {
+        var res = await db!.delete('canino_det', where: 'id_canino = ?',whereArgs: [element['id_canino']]);
+      }
+      return await db!.delete('canino', where: 'status = ?', whereArgs: [1]);
+    }
+  }
+
   Future<void> _persiste(Database db) async {
     //fornecer valor padrão para o campo alterado
     final persTabela = ["municipio", "localidade", "codend", "area", "quarteirao", "auxiliares", "captura", "captura_det"];
@@ -186,6 +227,37 @@ class DbHelper {
     } catch (e) {
       debugPrint('Tabela inexistente');
     }
+  }
+
+  Future<List<LstCanMaster>> consultaCaninoMaster() async {
+    Database? db = await instance.database;
+    var sql =
+        'SELECT v.id_canino, v.dt_canino as data, m.nome as municipio, c.codigo as codend, v.fant_quart as quadra, v.status ' +
+            'FROM canino v join municipio m on v.id_municipio=m.id_municipio join codend c on c.id_codend=v.id_codend';
+    List<Map<String, dynamic>> resultSet = await db!.rawQuery(sql);
+
+    List<LstCanMaster> list = new List.generate(resultSet.length, (index) {
+      return LstCanMaster.fromJson(resultSet[index]);
+    });
+
+    return list;
+  }
+
+  Future<List<LstCanDetail>> consultaCaninoDetail(int id) async {
+    Database? db = await instance.database;
+
+    var sql =
+        'SELECT v.id_canino_det as id, (CASE v.id_especie WHEN 1 THEN \'Felino\' else \'Canino\' END) as especie, v.nome, r.nome as raca, '+
+            '(CASE v.id_sexo WHEN 1 THEN \'Macho\' ELSE \'Fêmea\' END) as sexo ' +
+            'FROM canino_det v JOIN raca r on r.id_raca=v.id_raca WHERE v.id_canino=' + id.toString();
+    List<Map<String, dynamic>> resultSet =
+    await db!.rawQuery(sql);
+
+    List<LstCanDetail> list = new List.generate(resultSet.length, (index) {
+      return LstCanDetail.fromJson(resultSet[index]);
+    });
+
+    return list;
   }
 
   Future<List<LstMaster>> consultaCapturasMaster() async {
@@ -266,6 +338,8 @@ class DbHelper {
       sql = "SELECT id_$tabela as id, (codigo || '.' || nome) as nome FROM $tabela";
     } else if (tabela == 'codend') {
       sql = "SELECT id_$tabela as id, (logradouro || ', ' || numero) as nome FROM $tabela";
+    } else if (tabela == 'raca') {
+      sql = "SELECT id_$tabela as id, (codigo || ', ' || nome) as nome FROM $tabela";
     } else {
       sql = "SELECT id_$tabela as id, (codigo || '.' || descricao) as nome FROM $tabela";
     }

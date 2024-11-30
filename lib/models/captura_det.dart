@@ -7,6 +7,7 @@ class Captura_det {
   late String equipe;
   late String observacao;
   late String codend;
+  late int tp_codend;
   late int metodo;
   late int ambiente;
   late int localCaptura;

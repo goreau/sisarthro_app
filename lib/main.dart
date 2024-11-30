@@ -67,20 +67,20 @@ ThemeData buildThemeData() {
       iconTheme: IconThemeData(color: COR_BRANCO),
     ),
     primaryTextTheme: TextTheme(
-        headline6: TextStyle(
+        titleLarge: TextStyle(
           color: COR_BRANCO,
         )),
     primaryIconTheme: IconThemeData(color: COR_BRANCO),
     inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder()),
     dropdownMenuTheme:  const DropdownMenuThemeData( inputDecorationTheme: const InputDecorationTheme(border: OutlineInputBorder())),
     textTheme: baseTheme.textTheme.copyWith(
-      bodyText1: TextStyle(
+      bodyLarge: TextStyle(
         color: COR_AZUL_MARINHO,
       ),
-      bodyText2: TextStyle(
+      bodyMedium: TextStyle(
         color: COR_AZUL_MARINHO,
       ),
-      headline6: TextStyle(
+      titleLarge: TextStyle(
         fontSize: 20,
         fontFamily: 'RobotoCondensed',
         fontWeight: FontWeight.w100,

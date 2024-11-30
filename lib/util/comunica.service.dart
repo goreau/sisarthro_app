@@ -66,7 +66,7 @@ class ComunicaService {
     String _url = '';
     String resumo = 'Registros recebidos:\n';
 
-    _url = 'http://vigentapi.saude.sp.gov.br/mobAuxiliares';
+    _url = 'http://10.8.150.23:4000/mobAuxiliares';//'''http://vigentapi.saude.sp.gov.br/mobAuxiliares';
 
     final response = await http.get(Uri.parse(_url));
 
@@ -74,9 +74,32 @@ class ComunicaService {
       final data = jsonDecode(response.body);
       final dados = data['dados'];
 
+      final entries = ['auxiliares', 'raca'];
+      var obj = null;
+      var aux = null;
+      var raca = null;
+
+      for (var linha in entries) {
+        for (var idx in dados) {
+          if (idx.keys.elementAt(0) == linha) {
+            if (linha == 'auxiliares') {
+              aux = idx.values.elementAt(0);
+            } else {
+              raca = idx.values.elementAt(0);
+            }
+            continue;
+          }
+        }
+      }
+
+
+
       await dbHelper.limpa("auxiliares");
+      await dbHelper.limpa("raca");
       int ct = 0;
-      for (var linha in dados) {
+
+
+      for (var linha in aux) {
           Map<String, dynamic> row = new Map();
 
           row['id_auxiliares'] = linha['id'];
@@ -88,6 +111,20 @@ class ComunicaService {
           ct++;
       }
       resumo += ct > 0 ? 'Dados do sistema: $ct registros\n' : '';
+      ct = 0;
+      for (var linha in raca) {
+        Map<String, dynamic> row = new Map();
+
+        row['id_raca'] = linha['id'];
+        row['tipo'] = linha['tipo'];
+        row['codigo'] = linha['codigo'].toString().trim();
+        row['nome'] = linha['nome'].toString().trim();
+
+        await dbHelper.insert(row, "raca");
+        ct++;
+      }
+
+      resumo += ct > 0 ? 'Raças: $ct registros\n' : '';
 
     }
     final scaffold = ScaffoldMessenger.of(context);
@@ -104,7 +141,7 @@ class ComunicaService {
     String _url = '';
     String resumo = 'Registros recebidos:\n';
 
-    _url = 'http://vigentapi.saude.sp.gov.br/mobCadastro/${mun}';
+    _url = 'http://10.8.150.23:4000/mobCadastro/${mun}';//'http://vigentapi.saude.sp.gov.br/mobCadastro/${mun}';
 
     final response = await http.get(Uri.parse(_url));
 
@@ -187,6 +224,17 @@ class ComunicaService {
             ct++;
           }
           resumo += ct > 0 ? 'Quarteirão: $ct registros\n' : '';
+        } else if (linha == 'raca') {
+          ct = 0;
+          for (var campo in obj) {
+            row['id_raca'] = campo['id'];
+            row['nome'] = campo['nome'].toString().trim();
+            row['codigo'] = campo['codigo'].toString().trim();
+            row['tipo'] = campo['tipo'];
+            await dbHelper.insert(row, linha);
+            ct++;
+          }
+          resumo += ct > 0 ? 'Raça: $ct registros\n' : ''; } else if (linha == 'raca') {
         }
       }
       final scaffold = ScaffoldMessenger.of(context);

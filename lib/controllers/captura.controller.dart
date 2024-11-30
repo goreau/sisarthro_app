@@ -13,6 +13,8 @@ class CapturaController extends GetxController {
   var editId = 0;
   var editIdDet = 0;
   var masterId = 0;
+  var valCodend = ''.obs;
+  var valPC = ''.obs;
 
   var lstArea = <DropdownMenuItem<String>>[].obs;
   var lstMun = <DropdownMenuItem<String>>[].obs;
@@ -37,6 +39,7 @@ class CapturaController extends GetxController {
   var idAmb = '0'.obs;
   var idCap = '0'.obs;
   var idQuart = '0'.obs;
+  var tp_codend = '0'.obs;
 
   var loadingArea = false.obs;
   var loadingMun = false.obs;
@@ -88,12 +91,13 @@ class CapturaController extends GetxController {
   final umidFimController = TextEditingController();
   final latController = TextEditingController();
   final lngController = TextEditingController();
-  final codendController = TextEditingController();
+  final valPcController = TextEditingController();
 
   var capturaDet = Captura_det().obs;
   var captura = Captura().obs;
 
   final dbHelper = DbHelper.instance;
+
 
   initMaster(int id) async {
     editId = id;
@@ -123,20 +127,29 @@ class CapturaController extends GetxController {
   initDetail(int id) async {
     editIdDet = id;
 
-    loadArea();
-    loadAuxiliares();
+    await loadArea();
+    await loadAuxiliares();
 
     final db = DbHelper.instance;
     var json = await db.queryDetail(id);
 
-    updateArea(json['area'].toString());
+    await updateArea(json['area'].toString());
+
     updateQuart(json['quadra'].toString());
     updateMet(json['metodo'].toString());
     updateAmb(json['ambiente'].toString());
     updateCap(json['local_captura'].toString());
 
+
     masterId = int.parse(json['id_captura'].toString());
-    codendController.text = json['codend'].toString();
+    int tp = int.parse(json['tp_codend'].toString());
+    if (tp == 0){
+      updateCodend(json['codend'].toString());
+    } else {
+      valPcController.text = json['codend'].toString();
+    }
+    capturaDet.value.tp_codend = tp;
+    tp_codend.value = tp.toString();
     ailController.text = json['num_arm'].toString();
     alturaController.text = json['altura'].toString();
     amostraController.text = json['amostra'].toString();
@@ -173,46 +186,46 @@ class CapturaController extends GetxController {
     StreamSubscription positionStream =
     await Geolocator.getPositionStream(locationSettings: locationSettings)
         .listen((Position pos) {
-      this.latController.text = pos.latitude.toString();
-      this.lngController.text = pos.longitude.toString();
+      latController.text = pos.latitude.toString();
+      lngController.text = pos.longitude.toString();
     });
   }
 
   loadPreferences() async {
     try {
-      this.equipeController.text = await Storage.recupera('equipe');
-      this.ordemController.text = this.ordem.toString();
+      equipeController.text = await Storage.recupera('equipe');
+      ordemController.text = ordem.toString();
     } catch (e) {}
   }
 
   doRegister() async {
-    this.captura.value.equipe = this.equipeController.value.text;
+    captura.value.equipe = equipeController.value.text;
 
     var dt = dateController.value.text;
     var formattedDate = dt.split('/').reversed.join('-');
 
-    this.captura.value.dtCaptura = formattedDate;
-    this.captura.value.exec_3 = this.exec3Controller.value.text;
-    this.captura.value.quadrante = this.quadranteController.value.text;
-    this.captura.value.obsv = this.obsController.value.text;
+    captura.value.dtCaptura = formattedDate;
+    captura.value.exec_3 = exec3Controller.value.text;
+    captura.value.quadrante = quadranteController.value.text;
+    captura.value.obsv = obsController.value.text;
 
     try {
-      Storage.insere('equipe', this.equipeController.value.text);
+      Storage.insere('equipe', equipeController.value.text);
     } catch (ex) {}
 
     Map<String, dynamic> row = new Map();
-    row['id_municipio'] = this.captura.value.idMunicipio;
-    row['dt_captura'] = this.captura.value.dtCaptura;
-    row['execucao'] = this.captura.value.execucao;
-    row['exec_3'] = this.captura.value.exec_3;
-    row['zona'] = this.captura.value.zona;
-    row['cod_loc'] = this.captura.value.cod_loc;
-    row['quadrante'] = this.captura.value.quadrante;
-    row['agravo'] = this.captura.value.agravo;
-    row['atividade'] = this.captura.value.atividade;
-    row['equipe'] = this.captura.value.equipe;
-    row['obs'] = this.captura.value.obsv;
-    row['id_usuario'] = this.captura.value.idUsuario;
+    row['id_municipio'] = captura.value.idMunicipio;
+    row['dt_captura'] = captura.value.dtCaptura;
+    row['execucao'] = captura.value.execucao;
+    row['exec_3'] = captura.value.exec_3;
+    row['zona'] = captura.value.zona;
+    row['cod_loc'] = captura.value.cod_loc;
+    row['quadrante'] = captura.value.quadrante;
+    row['agravo'] = captura.value.agravo;
+    row['atividade'] = captura.value.atividade;
+    row['equipe'] = captura.value.equipe;
+    row['obs'] = captura.value.obsv;
+    row['id_usuario'] = captura.value.idUsuario;
     row['status'] = 0;
 
     if (editId == 0) {
@@ -233,42 +246,61 @@ class CapturaController extends GetxController {
   }
 
   doPost(BuildContext context) async {
-    this.capturaDet.value.codend = this.codendController.text;
-    this.capturaDet.value.num_arm = this.ailController.text;
-    this.capturaDet.value.altura = this.alturaController.text;
-    this.capturaDet.value.amostra = this.amostraController.text;
-    this.capturaDet.value.quantPotes = this.tubosController.text;
-    this.capturaDet.value.hora_inicio = this.horaIni.value;
-    this.capturaDet.value.hora_final = this.horaFim.value;
-    this.capturaDet.value.temp_inicio = this.tempIniController.text;
-    this.capturaDet.value.temp_final = this.tempFimController.text;
-    this.capturaDet.value.umidade_inicio = this.umidIniController.text;
-    this.capturaDet.value.umidade_final = this.umidFimController.text;
-    this.capturaDet.value.latitude = this.latController.text;
-    this.capturaDet.value.longitude = this.lngController.text;
+
+    if (idCodend.value != ''){
+      capturaDet.value.tp_codend = 0;
+      capturaDet.value.codend = idCodend.value;
+    } else if(valPcController.text != ''){
+      capturaDet.value.tp_codend = 1;
+      capturaDet.value.codend = valPcController.text;
+    } else {
+      final scaffold = ScaffoldMessenger.of(context);
+      scaffold.showSnackBar(
+        SnackBar(
+          content: const Text('Informe o codend ou o ponto de coleta.'),
+          backgroundColor: Colors.red[900],
+        ),
+      );
+      return;
+    }
+
+
+    capturaDet.value.num_arm = ailController.text;
+    capturaDet.value.altura = alturaController.text;
+    capturaDet.value.amostra = amostraController.text;
+    capturaDet.value.quantPotes = tubosController.text;
+    capturaDet.value.hora_inicio = horaIni.value;
+    capturaDet.value.hora_final = horaFim.value;
+    capturaDet.value.temp_inicio = tempIniController.text;
+    capturaDet.value.temp_final = tempFimController.text;
+    capturaDet.value.umidade_inicio = umidIniController.text;
+    capturaDet.value.umidade_final = umidFimController.text;
+    capturaDet.value.latitude = latController.text;
+    capturaDet.value.longitude = lngController.text;
 
     Map<String, dynamic> row = new Map();
     row['id_captura'] = masterId;
-    row['area'] = this.capturaDet.value.area;
-    row['codend'] = this.capturaDet.value.codend;
-    row['quadra'] = this.capturaDet.value.quadra;
-    row['metodo'] = this.capturaDet.value.metodo;
-    row['ambiente'] = this.capturaDet.value.ambiente;
-    row['local_captura'] = this.capturaDet.value.localCaptura;
-    row['num_arm'] = this.capturaDet.value.num_arm;
-    row['altura'] = this.capturaDet.value.altura == "" ? 0 : this.capturaDet.value.altura;
-    row['amostra'] = this.capturaDet.value.amostra;
-    row['quant_potes'] = this.capturaDet.value.quantPotes == "" ? 0 : this.capturaDet.value.quantPotes;
-    row['hora_inicio'] = this.capturaDet.value.hora_inicio;
-    row['hora_final'] = this.capturaDet.value.hora_final;
-    row['temp_inicio'] = this.capturaDet.value.temp_inicio == "" ? 0 : this.capturaDet.value.temp_inicio;
-    row['temp_final'] = this.capturaDet.value.temp_final == "" ? 0 : this.capturaDet.value.temp_final;
-    row['umidade_inicio'] = this.capturaDet.value.umidade_inicio == "" ? 0 : this.capturaDet.value.umidade_inicio;
-    row['umidade_final'] = this.capturaDet.value.umidade_final == "" ? 0 : this.capturaDet.value.umidade_final;
-    row['latitude'] = this.capturaDet.value.latitude == "" ? 0 : this.capturaDet.value.latitude;
-    row['longitude'] = this.capturaDet.value.longitude == "" ? 0 : this.capturaDet.value.longitude;
-    row['fant_area'] = this.capturaDet.value.fantArea;
-    row['fant_quart'] = this.capturaDet.value.fantQuart;
+    row['area'] = capturaDet.value.area;
+    row['codend'] = capturaDet.value.codend;
+    row['tp_codend'] = capturaDet.value.tp_codend;
+    row['quadra'] = capturaDet.value.quadra;
+    row['metodo'] = capturaDet.value.metodo;
+    row['ambiente'] = capturaDet.value.ambiente;
+    row['local_captura'] = capturaDet.value.localCaptura;
+    row['num_arm'] = capturaDet.value.num_arm;
+    row['altura'] = capturaDet.value.altura == "" ? 0 : capturaDet.value.altura;
+    row['amostra'] = capturaDet.value.amostra;
+    row['quant_potes'] = capturaDet.value.quantPotes == "" ? 0 : capturaDet.value.quantPotes;
+    row['hora_inicio'] = capturaDet.value.hora_inicio;
+    row['hora_final'] = capturaDet.value.hora_final;
+    row['temp_inicio'] = capturaDet.value.temp_inicio == "" ? 0 : capturaDet.value.temp_inicio;
+    row['temp_final'] = capturaDet.value.temp_final == "" ? 0 : capturaDet.value.temp_final;
+    row['umidade_inicio'] = capturaDet.value.umidade_inicio == "" ? 0 : capturaDet.value.umidade_inicio;
+    row['umidade_final'] = capturaDet.value.umidade_final == "" ? 0 : capturaDet.value.umidade_final;
+    row['latitude'] = capturaDet.value.latitude == "" ? 0 : capturaDet.value.latitude;
+    row['longitude'] = capturaDet.value.longitude == "" ? 0 : capturaDet.value.longitude;
+    row['fant_area'] = capturaDet.value.fantArea;
+    row['fant_quart'] = capturaDet.value.fantQuart;
     int id = 0;
 
     if (editIdDet == 0) {
@@ -279,7 +311,7 @@ class CapturaController extends GetxController {
 
 
     if (id > 0) {
-      this.ordem++;
+      ordem++;
       doClear();
       final scaffold = ScaffoldMessenger.of(context);
       scaffold.showSnackBar(
@@ -296,205 +328,190 @@ class CapturaController extends GetxController {
           backgroundColor: Colors.green[900],
         ),
       );
-      Get.toNamed(Routes.CONSULTA);
+      Get.offNamed(Routes.CONSULTA);
     }
   }
 
   doClear() {
-    this.ordemController.text = this.ordem.toString();
-    this.alturaController.text = '';
-    this.ailController.text = '';
-    this.amostra.value = '';
-    this.tubos.value = '';
-    this.horaIni.value = '';
-    this.horaFim.value = '';
-    this.tempIni.value = '';
-    this.tempFim.value = '';
-    this.umidIni.value = '';
-    this.umidFim.value = '';
-
+    ordemController.text = ordem.toString();
+    alturaController.text = '';
+    ailController.text = '';
+    amostra.value = '';
+    tubos.value = '';
+    horaIni.value = '';
+    horaFim.value = '';
+    tempIni.value = '';
+    tempFim.value = '';
+    umidIni.value = '';
+    umidFim.value = '';
+    valCodend.value = '';
+    valPC.value = '';
   }
 
   getCurrentDate(String date) async {
     //var dateParse = DateTime.parse(date);
     var formattedDate = date.split('-').reversed.join('/');
     //var formattedDate = "${dateParse.day}-${dateParse.month}-${dateParse.year}";
-    this.dateController.value.text = formattedDate;
-    this.dtCadastro.value = formattedDate.toString();
+    dateController.value.text = formattedDate;
+    dtCadastro.value = formattedDate.toString();
   }
 
   loadMun() {
-    this.loadingMun.value = true;
+    loadingMun.value = true;
     Auxiliar.loadData('municipio', '').then((value) {
-      this.lstMun.value = value;
-      this.loadingMun.value = false;
+      lstMun.value = value;
+      loadingMun.value = false;
     });
   }
 
   loadAtiv() {
-    this.loadingAtiv.value = true;
+    loadingAtiv.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 3').then((value) {
-      this.lstAtiv.value = value;
-      this.loadingAtiv.value = false;
+      lstAtiv.value = value;
+      loadingAtiv.value = false;
     });
   }
 
   loadAgravo() {
-    this.loadingAgravo.value = true;
+    loadingAgravo.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 2 ' ).then((value) {
-      this.lstAgravo.value = value;
-      this.loadingAgravo.value = false;
+      lstAgravo.value = value;
+      loadingAgravo.value = false;
     });
-    this.loadingZona.value = true;
+    loadingZona.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 1 ' ).then((value) {
-      this.lstZona.value = value;
-      this.loadingZona.value = false;
+      lstZona.value = value;
+      loadingZona.value = false;
     });
   }
 
   loadAuxiliares() {
-    this.loadingMet.value = true;
+    loadingMet.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 4 ' ).then((value) {
-      this.lstMet.value = value;
-      this.loadingMet.value = false;
+      lstMet.value = value;
+      loadingMet.value = false;
     });
-    this.loadingAmb.value = true;
+    loadingAmb.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 5 ' ).then((value) {
-      this.lstAmb.value = value;
-      this.loadingAmb.value = false;
+      lstAmb.value = value;
+      loadingAmb.value = false;
     });
-    this.loadingCap.value = true;
+    loadingCap.value = true;
     Auxiliar.loadData('auxiliares', 'tipo = 6 ' ).then((value) {
-      this.lstCap.value = value;
-      this.loadingCap.value = false;
+      lstCap.value = value;
+      loadingCap.value = false;
     });
   }
 
 
   loadArea() {
-    this.loadingArea.value = true;
+    loadingArea.value = true;
     Auxiliar.loadData('area', '').then((value) {
-      this.lstArea.value = value;
-      this.loadingArea.value = false;
+      lstArea.value = value;
+      loadingArea.value = false;
     });
   }
 
 
 
-  updateArea(value) {
+  Future updateArea(value) async {
     if (value == 'null') return true;
 
-    this.loadingQuart.value = true;
-    this.capturaDet.value.area = value;
+    loadingQuart.value = true;
+    capturaDet.value.area = value;
     
     var fant = lstArea.value.where((e) => e.value == value).toList();
     dynamic txt = fant[0].child;
 
-    this.capturaDet.value.fantArea = txt.data;
-    this.idArea.value = value;
-    Auxiliar.loadData('quarteirao', ' id_area= ' + value).then((value) {
-      this.lstQuart.value = value;
-      this.loadingQuart.value = false;
+    capturaDet.value.fantArea = txt.data;
+    idArea.value = value;
+
+    await Auxiliar.loadData('quarteirao', ' id_area= ' + value).then((value) {
+      lstQuart.value = value;
+      loadingQuart.value = false;
     });
   }
 
   updateMun(value) {
-    this.captura.value.idMunicipio =  int.parse(value);
-    this.idMun.value = value;
-    Auxiliar.getProp(int.parse(value)).then((val) => this.captura.value.idUsuario = val);
+    captura.value.idMunicipio =  int.parse(value);
+    idMun.value = value;
+    Auxiliar.getProp(int.parse(value)).then((val) => captura.value.idUsuario = val);
 
-    this.loadingLoc.value = true;
+    loadingLoc.value = true;
     Auxiliar.loadData('localidade', ' id_municipio= ' + value).then((value) {
-      this.lstLoc.value = value;
-      this.loadingLoc.value = false;
+      lstLoc.value = value;
+      loadingLoc.value = false;
     });
     Auxiliar.loadData('area', ' id_municipio= ' + value).then((value) {
-      this.lstArea.value = value;
+      lstArea.value = value;
     });
-    Auxiliar.loadData('codend', ' id_municipio= ' + value).then((value) {
-      this.lstCodend.value = value;
-    });
-
   }
 
   updateAtiv(value) {
-    this.captura.value.atividade = int.parse(value);
-    this.idAtiv.value = value;
+    captura.value.atividade = int.parse(value);
+    idAtiv.value = value;
   }
 
   updateZona(value) {
-    this.captura.value.zona = int.parse(value);
-    this.idZona.value = value;
+    captura.value.zona = int.parse(value);
+    idZona.value = value;
   }
 
   updateAgravo(value) {
-    this.captura.value.agravo = int.parse(value);
-    this.idAgravo.value = value;
+    captura.value.agravo = int.parse(value);
+    idAgravo.value = value;
   }
 
   updateMet(value) {
-    this.capturaDet.value.metodo = int.parse(value);
-    this.idMet.value = value;
+    capturaDet.value.metodo = int.parse(value);
+    idMet.value = value;
   }
 
   updateAmb(value) {
-    this.capturaDet.value.ambiente = int.parse(value);
-    this.idAmb.value = value;
+    capturaDet.value.ambiente = int.parse(value);
+    idAmb.value = value;
   }
 
   updateCap(value) {
-    this.capturaDet.value.localCaptura = int.parse(value);
-    this.idCap.value = value;
+    capturaDet.value.localCaptura = int.parse(value);
+    idCap.value = value;
   }
 
   updateMunOld(value) {
  //   this.captura.value.idMunicipio =  int.parse(value);
-    this.idMun.value = value;
-    this.loadingArea.value = true;
+    idMun.value = value;
+    loadingArea.value = true;
     Auxiliar.loadData('area', ' id_municipio= ' + value).then((value) {
-      this.lstArea.value = value;
-      this.loadingArea.value = false;
+      lstArea.value = value;
+      loadingArea.value = false;
     });
   }
 
   updateLoc(value) {
-    this.captura.value.cod_loc = int.parse(value);
-    this.idLoc.value = value;
+    captura.value.cod_loc = int.parse(value);
+    idLoc.value = value;
   }
 
   updateCodend(value) {
  //   this.captura.value.idCodend = value;
-    this.idCodend.value = value;
+    idCodend.value = value;
   }
 
   updateQuart(value) {
     if (value == '0') return true;
     var fant = lstQuart.value.where((e) => e.value == value).toList();
     dynamic txt = fant[0].child;
-    this.capturaDet.value.quadra = value;
-    this.capturaDet.value.fantQuart = txt.data;
-    this.idQuart.value = value;
+    capturaDet.value.quadra = value;
+    capturaDet.value.fantQuart = txt.data;
+    idQuart.value = value;
+    Auxiliar.loadData('codend', ' id_quarteirao= ' + value).then((value) {
+      lstCodend.value = value;
+    });
   }
 
   updateExec(value) {
     value = value == null ? 1 : value;
-    this.captura.value.execucao = value;
-    this.idExecucao.value = value;
-  }
-
-  limpaCapturas(BuildContext context) async {
-    final db = DbHelper.instance;
-    var tipo = clearAll.value ? 1 : 2;
-    var qt = 0;
-    db.limpaCaptura(tipo).then((value) {
-      qt = value;
-      final scaffold = ScaffoldMessenger.of(context);
-      scaffold.showSnackBar(
-        SnackBar(
-          content: Text(qt.toString() + ' registros excluidos.'),
-          backgroundColor: Colors.green[900],
-        ),
-      );
-    });
+    captura.value.execucao = value;
+    idExecucao.value = value;
   }
 }
